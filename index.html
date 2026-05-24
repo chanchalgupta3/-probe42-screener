@@ -106,8 +106,27 @@
     font-size: 13px; font-weight: 700; cursor: pointer;
   }
   .btn-reset:hover { background: #0284c7; }
+  .btn-download {
+    display: inline-block; margin: 4px 8px 0; background: #0B2447; color: #fff;
+    border: none; border-radius: 9px; padding: 11px 30px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .btn-download:hover { background: #19376D; }
+  .btn-actions { text-align: center; margin-top: 4px; }
   .error-box { background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 12px; padding: 16px 20px; color: var(--red); font-weight: 600; font-size: 13px; margin-bottom: 14px; }
   .footer-note { text-align: center; font-size: 10px; color: rgba(255,255,255,0.22); margin-top: 10px; }
+
+  @media print {
+    .hdr, .btn-reset, .btn-download { display: none !important; }
+    body { background: #fff !important; padding: 0; }
+    .wrap { padding: 0; max-width: 100%; }
+    .verdict-banner, .section-card, .flag-box, .chk-chip, .two-col > div { 
+      break-inside: avoid; 
+    }
+    .flags-grid, .two-col { grid-template-columns: 1fr 1fr; }
+    .m-card { border: 1px solid #E2E8F0 !important; }
+  }
+
   @media(max-width:580px) {
     .flags-grid, .two-col { grid-template-columns: 1fr; }
     .verdict-banner { flex-direction: column; }
@@ -437,9 +456,29 @@ function renderResults(r) {
       </div>
     </div>
 
-    <button class="btn-reset" onclick="resetTool()">Analyse Another Company →</button>
+    <div class="btn-actions">
+      <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
+      <button class="btn-reset" onclick="resetTool()">Analyse Another Company →</button>
+    </div>
   `;
 }
+
+function downloadPDF() {
+  // Hide buttons temporarily
+  const actions = document.querySelector('.btn-actions');
+  const hdr = document.querySelector('.hdr');
+  actions.style.display = 'none';
+  hdr.style.display = 'none';
+  
+  window.print();
+  
+  // Restore after print dialog
+  setTimeout(() => {
+    actions.style.display = 'block';
+    hdr.style.display = 'flex';
+  }, 1000);
+}
+
 </script>
 </body>
 </html>
