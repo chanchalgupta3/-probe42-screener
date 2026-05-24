@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probe42 Company Screener — FundsIndia Private Wealth</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0B2447; --teal: #19376D; --accent: #0EA5E9;
+    --gold: #F59E0B; --green: #10B981; --red: #EF4444;
+    --muted: #94A3B8; --body: #1E293B; --border: #E2E8F0;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(145deg, #0B2447 0%, #19376D 100%);
+    min-height: 100vh; padding-bottom: 48px; color: var(--body);
+  }
+  .hdr {
+    background: rgba(11,36,71,0.97); border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 13px 24px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px);
+  }
+  .hdr-logo { display: flex; align-items: center; gap: 11px; }
+  .hdr-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: linear-gradient(135deg, #0EA5E9, #0B2447);
+    border: 1.5px solid rgba(14,165,233,0.4);
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
+  }
+  .hdr-title { font-size: 14px; font-weight: 700; color: #fff; }
+  .hdr-sub   { font-size: 10px; color: var(--muted); }
+  .pill {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 10px; font-weight: 600; margin-left: 5px;
+    background: rgba(14,165,233,0.12); color: var(--accent);
+    border: 1px solid rgba(14,165,233,0.22);
+  }
+  .pill-green { background: rgba(16,185,129,0.12); color: var(--green); border-color: rgba(16,185,129,0.22); }
+  .wrap { max-width: 840px; margin: 0 auto; padding: 28px 18px 0; }
+  .upload-zone {
+    border: 2px dashed rgba(255,255,255,0.16); border-radius: 20px;
+    padding: 54px 28px; text-align: center; cursor: pointer;
+    background: rgba(255,255,255,0.03); margin-bottom: 18px; transition: all 0.2s;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(14,165,233,0.07); }
+  .upload-icon  { font-size: 44px; margin-bottom: 14px; }
+  .upload-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .upload-sub   { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+  .upload-note  { font-size: 10px; color: #475569; margin-top: 12px; }
+  .btn-primary {
+    padding: 11px 22px; background: var(--accent); color: #fff;
+    border: none; border-radius: 9px; font-size: 13px;
+    font-weight: 700; cursor: pointer; transition: background 0.15s; display: inline-block;
+  }
+  .btn-primary:hover { background: #0284c7; }
+  .loading-box {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 60px 28px; text-align: center;
+  }
+  .spin { display: inline-block; font-size: 42px; animation: spin 2s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-size: 17px; font-weight: 700; color: #fff; margin: 16px 0 8px; }
+  .loading-msg   { font-size: 13px; color: var(--accent); margin-bottom: 26px; min-height: 20px; }
+  .prog-track { height: 4px; background: rgba(255,255,255,0.08); border-radius: 4px; max-width: 300px; margin: 0 auto; overflow: hidden; }
+  .prog-bar   { height: 100%; background: var(--accent); border-radius: 4px; animation: prog 2.5s ease-in-out infinite; }
+  @keyframes prog { 0%{width:0%} 50%{width:72%} 100%{width:95%} }
+  #results { animation: fadeUp 0.4s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+  .verdict-banner {
+    border-radius: 16px; padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 14px; margin-bottom: 13px;
+  }
+  .verdict-left   { display: flex; align-items: center; gap: 16px; }
+  .verdict-label  { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+  .verdict-title  { font-size: 23px; font-weight: 800; letter-spacing: -0.02em; }
+  .verdict-reason { font-size: 12px; color: #475569; margin-top: 5px; max-width: 390px; line-height: 1.65; }
+  .verdict-right  { text-align: right; }
+  .company-name   { font-size: 18px; font-weight: 800; color: var(--navy); }
+  .company-ind    { font-size: 11px; color: #64748B; margin-top: 2px; }
+  .section-card   { background: rgba(255,255,255,0.97); border-radius: 13px; padding: 16px 19px; margin-bottom: 12px; }
+  .section-lbl    { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+  .metrics-grid   { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px,1fr)); gap: 9px; }
+  .m-card  { background: #F8FAFC; border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; }
+  .m-card.hl { background: #EFF6FF; border-color: #7DD3FC; }
+  .m-lbl { font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .m-val { font-size: 16px; font-weight: 700; color: var(--navy); }
+  .m-card.hl .m-val { color: var(--accent); }
+  .m-sub { font-size: 9px; color: var(--muted); margin-top: 2px; }
+  .flags-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .flag-box   { border-radius: 13px; padding: 14px 16px; }
+  .flag-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 9px; }
+  .flag-item  { display: flex; gap: 7px; margin-bottom: 5px; font-size: 11px; line-height: 1.55; }
+  .checks-row { display: flex; flex-wrap: wrap; gap: 9px; }
+  .chk-chip   { border-radius: 9px; padding: 7px 13px; min-width: 128px; }
+  .chk-lbl    { font-size: 9px; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+  .chk-val    { font-size: 11px; font-weight: 700; }
+  .two-col    { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .pitch-quote { font-size: 12px; color: var(--navy); font-style: italic; line-height: 1.7; border-left: 3px solid var(--accent); padding-left: 10px; margin-bottom: 10px; }
+  .cta-q   { display: flex; gap: 7px; margin-bottom: 7px; font-size: 11px; color: #334155; line-height: 1.6; }
+  .cta-num { color: var(--gold); font-weight: 700; flex-shrink: 0; }
+  .btn-reset {
+    display: block; margin: 4px auto 0; background: var(--accent); color: #fff;
+    border: none; border-radius: 9px; padding: 11px 30px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .btn-reset:hover { background: #0284c7; }
+  .error-box { background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 12px; padding: 16px 20px; color: var(--red); font-weight: 600; font-size: 13px; margin-bottom: 14px; }
+  .footer-note { text-align: center; font-size: 10px; color: rgba(255,255,255,0.22); margin-top: 10px; }
+  @media(max-width:580px) {
+    .flags-grid, .two-col { grid-template-columns: 1fr; }
+    .verdict-banner { flex-direction: column; }
+    .verdict-right  { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">
+    <div class="hdr-icon">🔍</div>
+    <div>
+      <div class="hdr-title">Probe42 Company Screener</div>
+      <div class="hdr-sub">FundsIndia Private Wealth — WM Tool</div>
+    </div>
+  </div>
+  <div>
+    <span class="pill">May 2026</span>
+    <span class="pill pill-green">AI-Powered</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <input type="file" id="fileInput" accept=".pdf,image/*" style="display:none" onchange="handleFile(this.files[0])">
+
+  <div id="upload-section">
+    <div class="upload-zone" id="dropzone"
+      onclick="document.getElementById('fileInput').click()"
+      ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
+      <div class="upload-icon">📄</div>
+      <div class="upload-title">Upload Probe42 Report</div>
+      <div class="upload-sub">
+        Drop the company's Probe42 PDF or screenshot here<br>
+        (P&amp;L, Balance Sheet &amp; financial data)
+      </div>
+      <div class="btn-primary">Choose File</div>
+      <div class="upload-note">Supports PDF · PNG · JPG &nbsp;|&nbsp; Powered by Claude AI &nbsp;|&nbsp; Analysis in ~20 seconds</div>
+    </div>
+    <div class="footer-note">For internal WM use only · FundsIndia Private Wealth · May 2026</div>
+  </div>
+
+  <div id="loading-section" style="display:none">
+    <div class="loading-box">
+      <div class="spin">⚙️</div>
+      <div class="loading-title" id="loading-fname">Analysing document…</div>
+      <div class="loading-msg" id="loading-msg">Reading financial statements…</div>
+      <div class="prog-track"><div class="prog-bar"></div></div>
+    </div>
+  </div>
+
+  <div id="error-section" style="display:none">
+    <div class="error-box" id="error-text"></div>
+    <button class="btn-reset" onclick="resetTool()">Try Again</button>
+  </div>
+
+  <div id="results-section" style="display:none">
+    <div id="results"></div>
+  </div>
+</div>
+
+<script>
+// ─── PASTE YOUR ANTHROPIC API KEY HERE ───────────────────────────────────────
+const API_KEY = "server-side";
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SYSTEM_PROMPT = `You are an expert corporate treasury analyst at FundsIndia Private Wealth.
+Analyze the uploaded Probe42 financial report and return ONLY a valid JSON object — no markdown, no backticks, no preamble.
+
+Exact JSON structure:
+{
+  "company_name": "string",
+  "industry": "string",
+  "revenue_cr": number or null,
+  "revenue_trend": "Growing" or "Stable" or "Declining" or "Not available",
+  "pat_margin_pct": number or null,
+  "ebitda_margin_pct": number or null,
+  "cash_balance_cr": number or null,
+  "net_debt_status": "Net Cash Positive" or "Net Debt" or "Not available",
+  "short_term_borrowings_cr": number or null,
+  "debtor_days": number or null,
+  "cash_pct_revenue": number or null,
+  "fixed_deposits_in_bs": true or false,
+  "auditor_qualification": true or false,
+  "dividends_paid": true or false or null,
+  "related_party_risk": "High" or "Low" or "Not available",
+  "contingent_liabilities_flag": true or false,
+  "estimated_deployable_surplus_cr": number or null,
+  "estimated_annual_gain_lakhs": number or null,
+  "green_flags": ["specific positive signals found in this document"],
+  "red_flags": ["specific negative signals found in this document"],
+  "verdict": "STRONG TARGET" or "GOOD TARGET" or "MODERATE" or "PASS",
+  "verdict_reason": "2-3 sentence plain English explanation",
+  "recommended_bucket": "Bucket 1 (3M) only" or "Bucket 1 (3M) + Bucket 2 (6M)" or "All three buckets" or "Not recommended",
+  "pitch_angle": "One specific sentence tailored to this company",
+  "conversation_starters": ["2-3 specific CFO questions based on their financials"],
+  "overall_score": number 0-100
+}
+
+Scoring: Revenue>=50Cr growing:+20, PAT>=10%:+15, Cash>=2Cr:+15, Net cash positive:+15, Low ST debt:+10, Debtor<45d:+10, FDs in BS:+5, Dividends:+5, Auditor qual:-20, High ST borrowings:-15, Related party high:-10, Revenue declining:-15.
+Verdict: 75-100=STRONG TARGET, 55-74=GOOD TARGET, 35-54=MODERATE, 0-34=PASS.
+Use null for unavailable numbers. Extract real figures — do not hallucinate.`;
+
+const LOADING_MSGS = [
+  "Reading financial statements…","Analysing P&L metrics…",
+  "Scanning balance sheet…","Checking debt & liquidity signals…",
+  "Running qualification scoring…","Preparing your verdict…"
+];
+const VERDICT_CFG = {
+  "STRONG TARGET": { color:"#10B981", bg:"#F0FDF4", border:"#86EFAC", icon:"🎯", label:"Strong Target" },
+  "GOOD TARGET":   { color:"#0EA5E9", bg:"#EFF6FF", border:"#7DD3FC", icon:"✅", label:"Good Target" },
+  "MODERATE":      { color:"#F59E0B", bg:"#FFFBEB", border:"#FCD34D", icon:"⚠️", label:"Moderate Fit" },
+  "PASS":          { color:"#EF4444", bg:"#FEF2F2", border:"#FCA5A5", icon:"❌", label:"Pass" }
+};
+
+let msgTimer = null;
+
+function onDragOver(e) { e.preventDefault(); document.getElementById('dropzone').classList.add('drag'); }
+function onDragLeave()  { document.getElementById('dropzone').classList.remove('drag'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropzone').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) handleFile(f);
+}
+
+function handleFile(file) {
+  if (!file) return;
+  showSection('loading');
+  document.getElementById('loading-fname').textContent = 'Analysing ' + file.name;
+  let i = 0;
+  document.getElementById('loading-msg').textContent = LOADING_MSGS[0];
+  msgTimer = setInterval(() => {
+    i = (i + 1) % LOADING_MSGS.length;
+    document.getElementById('loading-msg').textContent = LOADING_MSGS[i];
+  }, 2200);
+  analyzeFile(file);
+}
+
+async function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload  = () => res(r.result.split(',')[1]);
+    r.onerror = () => rej(new Error('File read failed'));
+    r.readAsDataURL(file);
+  });
+}
+
+async function analyzeFile(file) {
+  try {
+    if (false) {
+      throw new Error('API key not configured. Please contact your admin.');
+    }
+    const b64   = await toBase64(file);
+    const isPdf = file.type === 'application/pdf';
+    const isImg = file.type.startsWith('image/');
+    if (!isPdf && !isImg) throw new Error('Please upload a PDF or image file.');
+
+    const docBlock = isPdf
+      ? { type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 } }
+      : { type:'image',    source:{ type:'base64', media_type:file.type, data:b64 } };
+
+    const resp = await fetch('/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role:'user', content:[
+          docBlock,
+          { type:'text', text:'Analyse this Probe42 report and return the JSON assessment.' }
+        ]}]
+      })
+    });
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw    = (data.content.find(b => b.type==='text')?.text || '').replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    clearInterval(msgTimer);
+    renderResults(parsed);
+    showSection('results');
+  } catch(e) {
+    clearInterval(msgTimer);
+    document.getElementById('error-text').textContent = '⚠️ ' + (e.message || 'Analysis failed. Please try again.');
+    showSection('error');
+  }
+}
+
+function showSection(name) {
+  ['upload','loading','error','results'].forEach(s => {
+    document.getElementById(s+'-section').style.display = (s===name) ? 'block' : 'none';
+  });
+}
+
+function resetTool() {
+  clearInterval(msgTimer);
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('fileInput').value = '';
+  showSection('upload');
+}
+
+function f(v, pre='₹', suf=' Cr') { return (v==null)?'—':pre+v+suf; }
+function fp(v) { return (v==null)?'—':v+'%'; }
+
+function scoreColor(s) {
+  if (s>=75) return '#10B981'; if (s>=55) return '#0EA5E9'; if (s>=35) return '#F59E0B'; return '#EF4444';
+}
+
+function buildArc(score) {
+  const r=42,C=2*Math.PI*r,arc=C*0.75,fill=arc*(score/100),col=scoreColor(score);
+  return `<svg width="104" height="82" viewBox="0 0 112 86">
+    <circle cx="56" cy="66" r="${r}" fill="none" stroke="#E2E8F0" stroke-width="9"
+      stroke-dasharray="${arc} ${C}" stroke-dashoffset="${C*0.125}" stroke-linecap="round" transform="rotate(180 56 66)"/>
+    <circle cx="56" cy="66" r="${r}" fill="none" stroke="${col}" stroke-width="9"
+      stroke-dasharray="${fill} ${C-fill+C*0.25}" stroke-dashoffset="${C*0.125}" stroke-linecap="round" transform="rotate(180 56 66)"/>
+    <text x="56" y="64" text-anchor="middle" fill="${col}" font-size="20" font-weight="700" font-family="Segoe UI,system-ui">${score}</text>
+    <text x="56" y="78" text-anchor="middle" fill="#94A3B8" font-size="9" font-family="Segoe UI,system-ui">/ 100</text>
+  </svg>`;
+}
+
+function metricCard(label, value, sub, hl) {
+  return `<div class="m-card${hl?' hl':''}">
+    <div class="m-lbl">${label}</div>
+    <div class="m-val">${value||'—'}</div>
+    ${sub?`<div class="m-sub">${sub}</div>`:''}
+  </div>`;
+}
+
+function chipHtml(label, value, good, bad) {
+  const col=good?'#10B981':bad?'#EF4444':'#F59E0B';
+  const bg =good?'#F0FDF4':bad?'#FEF2F2':'#FFFBEB';
+  return `<div class="chk-chip" style="background:${bg};border:1px solid ${col}44">
+    <div class="chk-lbl">${label}</div>
+    <div class="chk-val" style="color:${col}">${value}</div>
+  </div>`;
+}
+
+function renderResults(r) {
+  const vc    = VERDICT_CFG[r.verdict] || VERDICT_CFG['PASS'];
+  const score = r.overall_score || 0;
+
+  const greenHtml = (r.green_flags||[]).length
+    ? r.green_flags.map(g=>`<div class="flag-item"><span style="color:#10B981;flex-shrink:0">✓</span><span>${g}</span></div>`).join('')
+    : '<div style="font-size:11px;color:#94A3B8">No significant green flags found</div>';
+
+  const redHtml = (r.red_flags||[]).length
+    ? r.red_flags.map(g=>`<div class="flag-item"><span style="color:#EF4444;flex-shrink:0">✗</span><span>${g}</span></div>`).join('')
+    : '<div style="font-size:11px;color:#94A3B8">No red flags detected</div>';
+
+  const checks = [
+    {label:'FDs in Balance Sheet',   v:r.fixed_deposits_in_bs,         t:'Yes — easy switch',  f:'Not found',  inv:false},
+    {label:'Auditor Qualification',  v:r.auditor_qualification,         t:'Yes — red flag!',    f:'None found', inv:true },
+    {label:'Dividends Paid',         v:r.dividends_paid,                t:'Yes — real surplus', f:'Not found',  inv:false},
+    {label:'Related Party Risk',     v:r.related_party_risk==='High',   t:'High risk',          f:'Low / Clear',inv:true },
+    {label:'Contingent Liabilities', v:r.contingent_liabilities_flag,   t:'Flag raised',        f:'Clear',      inv:true },
+  ].map(c => {
+    const na=c.v===null||c.v===undefined||c.v==='Not available';
+    const good=!na&&(!c.inv?c.v===true:c.v===false);
+    const bad =!na&&(c.inv ?c.v===true:false);
+    return chipHtml(c.label, na?'N/A':(c.v===true?c.t:c.f), good, bad);
+  }).join('');
+
+  const starters=(r.conversation_starters||[]).map((q,i)=>
+    `<div class="cta-q"><span class="cta-num">${i+1}.</span><span>${q}</span></div>`).join('');
+
+  const bpill=`<span class="pill">${r.recommended_bucket||'—'}</span>`;
+
+  document.getElementById('results').innerHTML = `
+    <div class="verdict-banner" style="background:${vc.bg};border:1.5px solid ${vc.border}">
+      <div class="verdict-left">
+        ${buildArc(score)}
+        <div>
+          <div class="verdict-label">Qualification Verdict</div>
+          <div class="verdict-title" style="color:${vc.color}">${vc.icon} ${vc.label}</div>
+          <div class="verdict-reason">${r.verdict_reason}</div>
+        </div>
+      </div>
+      <div class="verdict-right">
+        <div class="company-name">${r.company_name}</div>
+        <div class="company-ind">${r.industry||''}</div>
+        <div style="margin-top:8px">${bpill}</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-lbl">Key Financial Metrics</div>
+      <div class="metrics-grid">
+        ${metricCard('Revenue',       f(r.revenue_cr),          r.revenue_trend||'',  r.revenue_trend==='Growing')}
+        ${metricCard('PAT Margin',    fp(r.pat_margin_pct),     'Target ≥8%',         r.pat_margin_pct>=8)}
+        ${metricCard('EBITDA Margin', fp(r.ebitda_margin_pct),  'Target ≥12%',        r.ebitda_margin_pct>=12)}
+        ${metricCard('Cash Balance',  f(r.cash_balance_cr),     'Deployable pool',    r.cash_balance_cr>=2)}
+        ${metricCard('Net Position',  r.net_debt_status||'—',   '',                   r.net_debt_status==='Net Cash Positive')}
+        ${metricCard('Debtor Days',   r.debtor_days!=null?r.debtor_days+'d':'—','Target <45d', r.debtor_days<45)}
+        ${metricCard('Est. Surplus',  f(r.estimated_deployable_surplus_cr),'To deploy',true)}
+        ${metricCard('Annual Gain vs FD', r.estimated_annual_gain_lakhs!=null?'₹'+r.estimated_annual_gain_lakhs+'L':'—','At +1.5% yield',true)}
+      </div>
+    </div>
+
+    <div class="flags-grid">
+      <div class="flag-box" style="background:#F0FDF4;border:1px solid #86EFAC">
+        <div class="flag-title" style="color:#10B981">✅ Green Flags (${(r.green_flags||[]).length})</div>
+        <div style="font-size:11px;color:#166534;line-height:1.55">${greenHtml}</div>
+      </div>
+      <div class="flag-box" style="background:#FEF2F2;border:1px solid #FCA5A5">
+        <div class="flag-title" style="color:#EF4444">🚩 Red Flags (${(r.red_flags||[]).length})</div>
+        <div style="font-size:11px;color:#991B1B;line-height:1.55">${redHtml}</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-lbl">Quick Checks</div>
+      <div class="checks-row">${checks}</div>
+    </div>
+
+    <div class="two-col">
+      <div class="section-card" style="margin-bottom:0">
+        <div class="section-lbl" style="color:#0EA5E9">🎯 Pitch Angle for This Company</div>
+        <div class="pitch-quote">"${r.pitch_angle}"</div>
+        <div style="font-size:9px;color:#94A3B8;font-weight:700;margin-bottom:5px">RECOMMENDED BUCKETS</div>
+        ${bpill}
+      </div>
+      <div class="section-card" style="margin-bottom:0">
+        <div class="section-lbl" style="color:#F59E0B">💬 Ask the CFO These Questions</div>
+        ${starters}
+      </div>
+    </div>
+
+    <button class="btn-reset" onclick="resetTool()">Analyse Another Company →</button>
+  `;
+}
+</script>
+</body>
+</html>
